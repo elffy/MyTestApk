@@ -35,6 +35,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup.LayoutParams;
+import android.view.Window;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
@@ -112,7 +113,9 @@ public class TestActivity extends Activity implements OnClickListener, LocationM
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         log("onCreate");
+//        requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.main);
+//        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         getActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_SHOW_TITLE);
 //        getActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_SHOW_TITLE,
 //                ActionBar.DISPLAY_HOME_AS_UP | ActionBar.DISPLAY_SHOW_TITLE
@@ -193,11 +196,19 @@ public class TestActivity extends Activity implements OnClickListener, LocationM
         this.getContentResolver().registerContentObserver(Uri.parse("content://telephony"), true, mSimInfoChangeObserver);
     }
 
+    private static boolean first = true;
     @Override
     protected void onResume() {
         log("onResume");
         MyTestApp.setScreenShowFlags(this);
         super.onResume();
+        log("first:" + first);
+//        if (first) {
+//            first = false;
+//            startActivity(new Intent(this, TestActivity.class));
+//        } else {
+//            first = true;
+//        }
     }
 
     private final ContentObserver mSMSChangeObserver = new ContentObserver(new Handler()) {
@@ -301,7 +312,9 @@ public class TestActivity extends Activity implements OnClickListener, LocationM
         switch (id) {
             case R.id.button1:
                 onButton1Clicked();
-                // textView1.setText("button1");
+//                textView1.setVisibility(View.VISIBLE);
+//                textView1.setText("button1");
+                editText1.setText("onButton1Clicked");
                 break;
             case R.id.button2:
                 onButton2Clicked();
@@ -310,6 +323,7 @@ public class TestActivity extends Activity implements OnClickListener, LocationM
                 String msg = "hello wtf";
                 mHandler.sendMessageDelayed(mHandler.obtainMessage(EVENT_MSG_2, msg), 1000);
                 msg = null;
+                log("displayRotation:" + getWindowManager().getDefaultDisplay().getRotation());
 //                onButton3Clicked();
 
                 break;
