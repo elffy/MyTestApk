@@ -1,4 +1,4 @@
-package com.baidu.zjl;
+package com.zjl.test;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;

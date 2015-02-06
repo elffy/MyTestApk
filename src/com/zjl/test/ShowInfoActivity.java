@@ -1,4 +1,4 @@
-package com.baidu.zjl;
+package com.zjl.test;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -7,7 +7,7 @@ import android.os.Message;
 import android.util.Log;
 import android.widget.ScrollView;
 import android.widget.TextView;
-
+import com.smartisan.zjl.R;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;

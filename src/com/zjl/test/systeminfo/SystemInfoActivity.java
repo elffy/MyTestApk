@@ -1,4 +1,4 @@
-package com.baidu.zjl.systeminfo;
+package com.zjl.test.systeminfo;
 
 import android.app.ActionBar;
 import android.app.ActionBar.Tab;
@@ -15,7 +15,7 @@ import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.util.Log;
 import android.view.View;
 
-import com.baidu.zjl.R;
+import com.smartisan.zjl.R;
 
 import java.util.ArrayList;
 

@@ -1,5 +1,5 @@
 
-package com.baidu.zjl.utils;
+package com.zjl.test.utils;
 
 public class Utils {
 

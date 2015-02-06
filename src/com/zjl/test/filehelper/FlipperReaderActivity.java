@@ -1,4 +1,4 @@
-package com.baidu.zjl.filehelper;
+package com.zjl.test.filehelper;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -12,7 +12,7 @@ import android.view.animation.AnimationUtils;
 import android.widget.TextView;
 import android.widget.ViewFlipper;
 
-import com.baidu.zjl.R;
+import com.smartisan.zjl.R;
 
 public class FlipperReaderActivity extends Activity implements OnTouchListener, OnGestureListener{
 

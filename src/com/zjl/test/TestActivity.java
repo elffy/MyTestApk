@@ -1,5 +1,5 @@
 
-package com.baidu.zjl;
+package com.zjl.test;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -10,6 +10,7 @@ import java.io.IOException;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.KeyguardManager;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -22,20 +23,19 @@ import android.content.res.Configuration;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.location.Location;
-import android.location.LocationListener;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.os.PowerManager;
 import android.telephony.SmsManager;
 import android.telephony.TelephonyManager;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.ViewGroup.LayoutParams;
-import android.view.Window;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
@@ -43,15 +43,15 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.baidu.zjl.filehelper.FileBrowserListActivity;
-import com.baidu.zjl.filehelper.FlipperReaderActivity;
-import com.baidu.zjl.systeminfo.SystemInfoActivity;
-import com.baidu.zjl.utils.LocationManager;
+import com.smartisan.zjl.R;
+import com.zjl.test.filehelper.FileBrowserListActivity;
+import com.zjl.test.filehelper.FlipperReaderActivity;
+import com.zjl.test.systeminfo.SystemInfoActivity;
+import com.zjl.test.utils.LocationManager;
 
 public class TestActivity extends Activity implements OnClickListener, LocationManager.Listener {
     /** Called when the activity is first created. */
@@ -63,6 +63,8 @@ public class TestActivity extends Activity implements OnClickListener, LocationM
     private static final int EVENT_MSG_3 = 3;
     private static final int EVENT_MSG_4 = 4;
     private static final int EVENT_MSG_5 = 5;
+    private static final int EVENT_KEYGUARD_STATE = 6;
+    private static final int POP_DIALOG = 7;
     private Handler mHandler;
 
     private Button button1;
@@ -78,7 +80,7 @@ public class TestActivity extends Activity implements OnClickListener, LocationM
     private TextView textView3;
     private CheckBox checkBox1;
     
-    public static final String TEST_ACTION = "android.intent.action.TEST";
+    public static final String TEST_ACTION = "smartisan.aciton.TOGGLE_FLASHLIGHT";//"android.intent.action.TEST";
 
     private Spinner mSpinner;
     private static String[] mTestOptions = {"xxxTest", "NvTest", "PackageTest", "SmsTest",
@@ -136,13 +138,14 @@ public class TestActivity extends Activity implements OnClickListener, LocationM
         textView1 = (TextView) findViewById(R.id.textView1);
         textView2 = (TextView) findViewById(R.id.textView2);
         textView3 = (TextView) findViewById(R.id.textView3);
-        textView1.setVisibility(View.GONE);
-        textView2.setVisibility(View.GONE);
-        textView3.setVisibility(View.GONE);
+//        textView1.setVisibility(View.GONE);
+//        textView2.setVisibility(View.GONE);
+//        textView3.setVisibility(View.GONE);
         checkBox1 = (CheckBox) findViewById(R.id.checkBox1);
         checkBox1.setChecked(true);
 //        checkBox1.setEnabled(false);
 
+        
         mSpinner = (Spinner) findViewById(R.id.spinner1);
         mSpinnerAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, mTestOptions);
         mSpinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -168,47 +171,69 @@ public class TestActivity extends Activity implements OnClickListener, LocationM
 
             @Override
             public void handleMessage(Message msg) {
-                // TODO Auto-generated method stub
-                if (msg.what == EVENT_MSG_1) {
-                    Log.d(TAG, "msg received");
-                    startMyService(1);
-                    mHandler.sendEmptyMessageDelayed(EVENT_MSG_1, 1000);
-                } else if (msg.what == EVENT_MSG_2) {
-                    Log.d(TAG, "msg received 2");
-                    textView1.setVisibility(View.VISIBLE);
-                    textView1.setText("timer:" + (timer++));
-                    mHandler.sendEmptyMessageDelayed(EVENT_MSG_2, 1000);
-                } else if (msg.what == EVENT_MSG_3) {
-                    finish();
-                } else if (msg.what == EVENT_MSG_4) {
-                    Log.v(TAG, "msg received 4");
-                    log("button1=" + button1);
-                    log("mTestSelected=" + mTestSelected);
-                } else if (msg.what == EVENT_MSG_5) {
-                    Log.v(TAG, "msg received 5");
-                    log("msg:" + msg.obj);
+                switch(msg.what) {
+                    case EVENT_MSG_1:
+                        Log.d(TAG, "msg received");
+                        startMyService(1);
+                        mHandler.sendEmptyMessageDelayed(EVENT_MSG_1, 1000);
+                        break;
+                    case EVENT_MSG_2:
+                        Log.d(TAG, "msg received 2");
+                        textView1.setVisibility(View.VISIBLE);
+                        textView1.setText("timer:" + (timer++));
+                        mHandler.sendEmptyMessageDelayed(EVENT_MSG_2, 1000);
+                        break;
+                    case EVENT_MSG_3:
+                        finish();
+                        break;
+                    case EVENT_MSG_4:
+                        Log.v(TAG, "msg received 4");
+                        log("button1=" + button1);
+                        log("mTestSelected=" + mTestSelected);
+                        break;
+                    case EVENT_MSG_5:
+                        Log.v(TAG, "msg received 5");
+                        log("msg:" + msg.obj);
+                        break;
+                    case EVENT_KEYGUARD_STATE:
+                        getKeygaurdState();
+                        break;
+                    case POP_DIALOG:
+                        popUpDialog();
+                        break;
                 }
+
             }
 
         };
-        
         this.getContentResolver().registerContentObserver(Uri.parse("content://sms"), true, mSMSChangeObserver);
         this.getContentResolver().registerContentObserver(Uri.parse("content://telephony"), true, mSimInfoChangeObserver);
+    }
+
+    protected void popUpDialog() {
+        Log.d(TAG, "popUpDialog");
+        new AlertDialog.Builder(this)
+                .setTitle("TEST").setIcon(android.R.drawable.stat_sys_warning)
+                .setMessage("This is a test Dialog").setPositiveButton("OK", null)
+                .setCancelable(false).create().show();
     }
 
     private static boolean first = true;
     @Override
     protected void onResume() {
         log("onResume");
-        MyTestApp.setScreenShowFlags(this);
+//        MyTestApp.setScreenShowFlags(this);
         super.onResume();
-        log("first:" + first);
+//        log("first:" + first);
 //        if (first) {
 //            first = false;
 //            startActivity(new Intent(this, TestActivity.class));
 //        } else {
 //            first = true;
 //        }
+        //get the system language setting
+        String cont = getResources().getConfiguration().locale.getCountry();
+        log(cont);
     }
 
     private final ContentObserver mSMSChangeObserver = new ContentObserver(new Handler()) {
@@ -231,9 +256,21 @@ public class TestActivity extends Activity implements OnClickListener, LocationM
     }
 
     @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        log("onKeyDown:" + keyCode + ", " + event.getCharacters());
+        return super.onKeyDown(keyCode, event);
+    }
+
+    @Override
+    public boolean onKeyUp(int keyCode, KeyEvent event) {
+        // TODO Auto-generated method stub
+        return super.onKeyUp(keyCode, event);
+    }
+
+    @Override
     protected void onPause() {
         Log.d(TAG, "onPause");
-        mHandler.sendEmptyMessageDelayed(EVENT_MSG_4, 1000);
+//        mHandler.sendEmptyMessageDelayed(EVENT_MSG_4, 1000);
         super.onPause();
     }
 
@@ -246,6 +283,30 @@ public class TestActivity extends Activity implements OnClickListener, LocationM
         if (mLocationManager != null) {
             mLocationManager.recordLocation(false);
         }
+//        finish();
+//        getKeygaurdState();
+//        try {
+//            Thread.currentThread().sleep(3000);
+//        } catch (InterruptedException e) {
+//            // TODO Auto-generated catch block
+//            e.printStackTrace();
+//        }
+    }
+
+    int queryCount = 0;
+    private void getKeygaurdState() {
+        KeyguardManager kgm = (KeyguardManager)getSystemService(Context.KEYGUARD_SERVICE);
+        log(queryCount + ",mode:" + kgm.inKeyguardRestrictedInputMode());
+        queryCount++;
+        if (queryCount > 5) {
+            queryCount = 0;
+            return;
+        }
+        if (!kgm.inKeyguardRestrictedInputMode()) {
+            mHandler.sendEmptyMessageDelayed(EVENT_KEYGUARD_STATE, 100);
+        }
+        PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+        log("isScreenOn:" + pm.isScreenOn());
     }
 
     @Override
@@ -254,20 +315,18 @@ public class TestActivity extends Activity implements OnClickListener, LocationM
         super.onDestroy();
         Log.d(TAG, "onDestroy");
         // if do not removeMessage, looper will go on, even if the activity has been destroyed.
-        mHandler.removeMessages(1);
-        mHandler.removeMessages(2);
+        mHandler.removeMessages(EVENT_MSG_1);
+        mHandler.removeMessages(EVENT_MSG_2);
         // mHandler.getLooper().quit();
-        mHandler = null;
+//        mHandler = null;
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         menu.add(0, 0, 0, R.string.systeminfo);
         menu.add(0, 1, 0, R.string.filetest);
-        menu.add(0, 2, 0, "simpleActivity");
-        menu.add(0, 3, 0, "Location");
         
-        MenuItem actionItem = menu.add(0, 2, 0, "Action Button");
+        MenuItem actionItem = menu.add(0, 2, 0, "Info");
 
         // Items that show as actions should favor the "if room" setting, which will
         // prevent too many buttons from crowding the bar. Extra items will show in the
@@ -277,11 +336,11 @@ public class TestActivity extends Activity implements OnClickListener, LocationM
         // Items that show as actions are strongly encouraged to use an icon.
         // These icons are shown without a text description, and therefore should
         // be sufficiently descriptive on their own.
-        actionItem.setIcon(android.R.drawable.ic_menu_share);
+//        actionItem.setIcon(android.R.drawable.ic_menu_share);
         
-        menu.add(0, 3, 0, "just").setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+        menu.add(0, 3, 0, "Location").setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
         menu.add(0, 4, 0, "example").setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
-        
+
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -298,6 +357,7 @@ public class TestActivity extends Activity implements OnClickListener, LocationM
                 break;
             case 2:
                 startActivity(new Intent(this, SimpleTestActivity.class));
+//                finish();
                 break;
             case 3:
                 getLocation();
@@ -306,18 +366,22 @@ public class TestActivity extends Activity implements OnClickListener, LocationM
         return false;
     }
 
+    private int count;
     @Override
     public void onClick(View arg0) {
         int id = arg0.getId();
         switch (id) {
             case R.id.button1:
                 onButton1Clicked();
-//                textView1.setVisibility(View.VISIBLE);
-//                textView1.setText("button1");
-                editText1.setText("onButton1Clicked");
+                textView1.setVisibility(View.VISIBLE);
+                textView1.setText("button1");
                 break;
             case R.id.button2:
-                onButton2Clicked();
+                Toast.makeText(this, "count=" + count++, Toast.LENGTH_SHORT).show();
+                log("editText1.length():" + editText1.getText().length());
+                log("editText2.length():" + editText2.getText().length());
+                broadcastTest();
+//                onButton2Clicked();
                 break;
             case R.id.button3:
                 String msg = "hello wtf";
@@ -394,6 +458,12 @@ public class TestActivity extends Activity implements OnClickListener, LocationM
         // startMyService(1);
     }
 
+    private void broadcastTest() {
+        Intent intent = new Intent("com.android.camera.videoRecord");
+        intent.putExtra("isRecording", false);
+        this.sendBroadcast(intent);
+    }
+
     private Process mprocess;
     private static final String LOG_DIR = "/sdcard/log/";
 
@@ -437,7 +507,7 @@ public class TestActivity extends Activity implements OnClickListener, LocationM
 
     private void dialogTest() {
         MyDialogListener mListener = new MyDialogListener();
-        AlertDialog d = new AlertDialog.Builder(this)
+        AlertDialog d = new AlertDialog.Builder(this, android.R.style.Theme_DeviceDefault_Dialog)
                 .setTitle("Hey")
                 .setIcon(android.R.drawable.stat_sys_warning)
                 .setMessage("sure to make a call?")
@@ -475,8 +545,9 @@ public class TestActivity extends Activity implements OnClickListener, LocationM
     }
 
     private void xxxTest() {
-//        Intent intent = new Intent(TEST_ACTION);
-//        this.sendBroadcast(intent);
+        Intent intent = new Intent(TEST_ACTION);
+        intent.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
+        this.sendBroadcast(intent);
         
         //---the following is about standby current issue---//
         // Trigger a notification that, when clicked, will show the alarm alert

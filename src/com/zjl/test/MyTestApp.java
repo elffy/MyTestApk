@@ -1,4 +1,4 @@
-package com.baidu.zjl;
+package com.zjl.test;
 
 import android.app.Activity;
 import android.app.Application;

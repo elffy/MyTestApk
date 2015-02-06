@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.baidu.zjl.utils;
+package com.zjl.test.utils;
 
 import android.content.Context;
 import android.location.Location;

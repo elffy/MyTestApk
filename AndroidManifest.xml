@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.baidu.zjl"
+    package="com.smartisan.zjl"
     android:versionCode="1"
     android:versionName="1.0" >
 
@@ -22,37 +22,48 @@
     <uses-permission android:name="android.permission.GET_TASKS" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.PREVENT_POWER_KEY"/>
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
 
     <application
-        android:name="MyTestApp"
+        android:name="com.zjl.test.MyTestApp"
+        android:clearTaskOnLaunch="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name" >
         <activity
-            android:name=".TestActivity"
-            android:configChanges="orientation|screenSize|keyboardHidden"
+            android:name="com.zjl.test.TestActivity"
+            android:icon="@drawable/ic_launcher"
             android:label="@string/app_name"
+			android:clearTaskOnLaunch="true"
+            android:configChanges="orientation|screenSize|keyboardHidden"
             android:screenOrientation="portrait"
-            android:launchMode="singleTop"
             android:theme="@android:style/Theme.DeviceDefault.Light.DarkActionBar" >
-
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
+                <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
-        <service android:name="MyService" >
+        <activity-alias android:icon="@drawable/ic_launcher"
+                        android:label="@string/app_name"
+                        android:clearTaskOnLaunch="true"
+                        android:name="com.zjl.test.MyTestActivity"
+                        android:targetActivity="com.zjl.test.TestActivity" >
+        </activity-alias>
+
+        <service android:name="com.zjl.test.MyService" >
         </service>
 
         <receiver
-            android:name="MyReceiver"
+            android:name="com.zjl.test.MyReceiver"
             android:exported="true" >
             <intent-filter>
                 <action android:name="android.intent.action.SERVICE_STATE" />
                 <action android:name="android.intent.action.SIM_STATE_CHANGED" />
                 <action android:name="android.intent.action.AIRPLANE_MODE" />
                 <action android:name="android.intent.action.TEST" />
+                <action android:name="net.cactii.flash2.TOGGLE_FLASHLIGHT"></action>
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
@@ -60,26 +71,27 @@
         </receiver>
 
         <activity
-            android:name=".systeminfo.SystemInfoActivity"
+            android:name="com.zjl.test.systeminfo.SystemInfoActivity"
             android:label="@string/systeminfo"
             android:theme="@android:style/Theme.DeviceDefault.Light.DarkActionBar" >
         </activity>
         <activity
-            android:name=".filehelper.FileBrowserListActivity"
+            android:name="com.zjl.test.filehelper.FileBrowserListActivity"
             android:label="@string/filebrowser"
             android:configChanges="orientation|screenSize|keyboardHidden"
             android:screenOrientation="portrait"
             android:theme="@android:style/Theme.DeviceDefault.Light.DarkActionBar" >
         </activity>
         <activity
-            android:name="ShowInfoActivity"
+            android:name="com.zjl.test.ShowInfoActivity"
             android:theme="@android:style/Theme.DeviceDefault.Light.DarkActionBar" >
         </activity>
         <activity
-            android:name=".filehelper.FlipperReaderActivity"
+            android:name="com.zjl.test.filehelper.FlipperReaderActivity"
             android:theme="@android:style/Theme.DeviceDefault.Light.DarkActionBar" >
         </activity>
-        <activity android:name="SimpleTestActivity"></activity>
+        <activity android:name="com.zjl.test.SimpleTestActivity">
+        </activity>
     </application>
 
 </manifest>

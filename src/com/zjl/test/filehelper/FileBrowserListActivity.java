@@ -1,5 +1,5 @@
 
-package com.baidu.zjl.filehelper;
+package com.zjl.test.filehelper;
 
 //import android.R;
 import android.app.ActionBar;
@@ -28,8 +28,8 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.baidu.zjl.R;
-import com.baidu.zjl.ShowInfoActivity;
+import com.smartisan.zjl.R;
+import com.zjl.test.ShowInfoActivity;
 
 import java.io.File;
 import java.util.ArrayList;

@@ -1,5 +1,5 @@
 
-package com.baidu.zjl.systeminfo;
+package com.zjl.test.systeminfo;
 
 import android.app.ActivityManager;
 import android.app.ActivityManager.RunningServiceInfo;
@@ -11,7 +11,7 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.os.Build;
 
-import com.baidu.zjl.utils.CMDExecute;
+import com.zjl.test.utils.CMDExecute;
 
 import java.io.IOException;
 import java.util.ArrayList;

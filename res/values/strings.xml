@@ -3,11 +3,11 @@
 
     <string name="hello">Hello World, ServiceTestActivity!</string>
     <string name="app_name">MyTestApp</string>
-    <string name="button1"> Test </string>
+    <string name="button1"> Te</string>
     <string name="button2">Button2</string>
     <string name="button3">Button3</string>
     <string name="textView1">TextView1</string>
-    <string name="textView2">TextView2</string>
+    <string name="textView2">10010TextView2</string>
     <string name="textView3">TextView3</string>
     <string name="checkbox">CheckBox</string>
     <string name="systeminfo">SystemInfo</string>

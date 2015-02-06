@@ -1,4 +1,4 @@
-package com.baidu.zjl.systeminfo;
+package com.zjl.test.systeminfo;
 
 import android.app.Activity;
 import android.app.ListFragment;

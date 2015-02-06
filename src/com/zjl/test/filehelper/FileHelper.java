@@ -1,32 +1,33 @@
-package com.baidu.zjl;
+package com.zjl.test.filehelper;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.os.Environment;
 
-public class SimpleTestActivity extends Activity {
+public class FileHelper extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        // TODO Auto-generated method stub
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.simple_layout);
     }
 
     @Override
     protected void onDestroy() {
-        MyTestApp.clearScreenShowFlags(this);
+        // TODO Auto-generated method stub
         super.onDestroy();
     }
 
     @Override
-    protected void onPause() {
+    protected void onStart() {
         // TODO Auto-generated method stub
-        super.onPause();
+        super.onStart();
     }
 
     @Override
-    protected void onResume() {
-        MyTestApp.setScreenShowFlags(this);
-        super.onResume();
+    protected void onStop() {
+        // TODO Auto-generated method stub
+        super.onStop();
     }
 
 }

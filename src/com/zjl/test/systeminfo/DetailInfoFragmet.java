@@ -1,4 +1,4 @@
-package com.baidu.zjl.systeminfo;
+package com.zjl.test.systeminfo;
 
 import android.os.Bundle;
 import android.app.Fragment;
@@ -10,7 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.baidu.zjl.R;
+import com.smartisan.zjl.R;
 
 public class DetailInfoFragmet extends Fragment {
     
