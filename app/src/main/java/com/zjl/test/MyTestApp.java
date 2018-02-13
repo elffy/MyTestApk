@@ -7,6 +7,8 @@ import android.util.Log;
 import android.view.Window;
 import android.view.WindowManager;
 
+import com.tencent.smtt.sdk.QbSdk;
+
 public class MyTestApp extends Application {
 
     public static final String TAG = "zjltest";
@@ -15,6 +17,17 @@ public class MyTestApp extends Application {
     public void onCreate() {
         super.onCreate();
         Log.d(TAG, "App oncreate");
+        QbSdk.initX5Environment(this, new QbSdk.PreInitCallback() {
+            @Override
+            public void onCoreInitFinished() {
+                Log.d(TAG, "onCoreInitFinished");
+            }
+
+            @Override
+            public void onViewInitFinished(boolean b) {
+                Log.d(TAG, "onViewInitFinished:" + b);
+            }
+        });
 
     }
 

@@ -524,4 +524,22 @@
     <color name="actionbar_icon_color">#ffffff</color>
 
     <color name="blog_text_button">#68B9CC</color>
+
+    <color name="setting_item_text_color_disabled">#BABABA</color>
+    <color name="text_color_pressed_highlight">#ffffff</color>
+    <color name="alpha_cc_black_color">#CC000000</color>
+    <color name="alpha_66_black_color">#66000000</color>
+    <color name="alpha_80_black_color">#80000000</color>
+    <color name="alpha_9a_black_color">#9A000000</color>
+    <color name="alpha_99_black_color">#99000000</color>
+    <color name="alpha_b3_black_color">#B3000000</color>
+    <color name="alpha_4c_black_color">#4C000000</color>
+    <color name="alpha_14_black_color">#14000000</color>
+    <color name="alpha_33_black_color">#33000000</color>
+    <color name="alpha_1e_black_color">#1E000000</color>
+    <color name="default_image_color">#f5f5f5</color>
+    <color name="color_5079d9">#5079d9</color>
+    <color name="tablet_title_text_color">#9A000000</color>
+    <color name="tablet_divider_line_color">#DEDEDE</color>
+    <color name="tablet_first_column_bg_color">#EBF5FF</color>
 </resources>

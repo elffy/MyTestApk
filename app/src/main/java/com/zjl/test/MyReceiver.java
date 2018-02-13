@@ -29,7 +29,7 @@ public class MyReceiver extends BroadcastReceiver {
             
             Notification n = null;
             n = new Notification(R.drawable.ic_launcher, label, System.currentTimeMillis());
-            n.setLatestEventInfo(context, label, time, null);
+//            n.setLatestEventInfo(context, label, time, null);
             n.flags |= Notification.FLAG_AUTO_CANCEL;
             n.flags |= Notification.FLAG_SHOW_LIGHTS;
             n.flags |= Notification.FLAG_ONGOING_EVENT;
@@ -48,7 +48,7 @@ public class MyReceiver extends BroadcastReceiver {
             
             Notification n = null;
             n = new Notification(R.drawable.ic_launcher, label, System.currentTimeMillis());
-            n.setLatestEventInfo(context, label, time, null);
+//            n.setLatestEventInfo(context, label, time, null);
             n.flags |= Notification.FLAG_AUTO_CANCEL;
             // Send the notification using the alarm id to easily identify the
             // correct notification.

@@ -18,6 +18,9 @@ public class DetailInfoFragmet extends Fragment {
     
     private View mRootView = null;
 
+    public DetailInfoFragmet() {
+
+    }
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         // TODO Auto-generated method stub

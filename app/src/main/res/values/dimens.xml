@@ -1,5 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <dimen name="time_progress_view_textsize">11sp</dimen>
-    
+    <dimen name="title_text_size">20sp</dimen>
+    <dimen name="title_max_width">130dp</dimen>
+    <dimen name="title_middle_max_width">174dp</dimen>
+    <dimen name="title_button_max_width">102dp</dimen>
+
+    <dimen name="tablet_titlebar_height">48dp</dimen>
+    <dimen name="titlebar_btn_textsize">13.6sp</dimen>
+    <dimen name="tablet_divider_line_width">0.6dp</dimen>
+    <dimen name="tablet_bottombar_height">48dp</dimen>
+    <dimen name="nav_item_content_text_size">12sp</dimen>
+    <dimen name="nav_item_sub_content_text_size">10sp</dimen>
+    <dimen name="nav_list_header_text_size">10sp</dimen>
+    <dimen name="nav_list_header_height">18dp</dimen>
+    <dimen name="nav_list_item_height">30dp</dimen>
+    <dimen name="nav_list_header_padding_top">6dp</dimen>
 </resources>

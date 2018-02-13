@@ -26,6 +26,12 @@
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="com.smartisan.calendar.ACCESS_HOLIDAY" />
 
+    <!-- add for tbs sdk -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+
     <application
         android:name="com.zjl.test.MyTestApp"
         android:clearTaskOnLaunch="true"
@@ -93,7 +99,38 @@
             android:name="com.zjl.test.filehelper.FlipperReaderActivity"
             android:theme="@android:style/Theme.DeviceDefault.Light.DarkActionBar" >
         </activity>
-        <activity android:name="com.zjl.test.SimpleTestActivity">
+
+        <activity
+            android:name="com.zjl.test.ReaderActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="text/*" />
+                <data android:mimeType="application/pdf" />
+                <data android:mimeType="application/msword" />
+                <data android:mimeType="application/mspowerpoint" />
+                <data android:mimeType="application/vnd.ms-excel" />
+                <data android:mimeType="application/vnd.ms-powerpoint" />
+                <data android:mimeType="application/vnd.openxmlformats-officedocument.wordprocessingml.document" />
+                <data android:mimeType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" />
+                <data android:mimeType="application/vnd.openxmlformats-officedocument.presentationml.presentation" />
+                <data android:mimeType="application/x-gtar" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name="com.zjl.test.SimpleTestActivity"
+            android:label="SimpleTestActivity" >
+            <intent-filter>
+                <action android:name="android.intent.action.SEND"/>
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="*/*" />
+            </intent-filter>
+        </activity>
+        <activity android:name="com.zjl.test.ListTestActivity">
+        </activity>
+        <activity android:name="com.zjl.test.largescreen.TestColumnActivity"
+            android:screenOrientation="landscape">
         </activity>
     </application>
 

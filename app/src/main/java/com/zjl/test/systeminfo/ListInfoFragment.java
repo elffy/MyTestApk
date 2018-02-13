@@ -24,6 +24,8 @@ public class ListInfoFragment extends ListFragment {
         mTabIndex = tab;
 //        initData();
     }
+    public ListInfoFragment() {
+    }
 
     private void initView() {
         if (mTabIndex == SystemInfoActivity.TAB_APP) {

@@ -6,6 +6,8 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 import android.app.ActionBar;
 import android.app.Activity;
@@ -26,7 +28,9 @@ import android.database.Cursor;
 import android.graphics.Color;
 import android.location.Location;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.os.PowerManager;
@@ -55,6 +59,8 @@ import android.widget.Toast;
 import com.zjl.test.compat.StatusBarCompat;
 import com.zjl.test.filehelper.FileBrowserListActivity;
 import com.zjl.test.filehelper.FlipperReaderActivity;
+import com.zjl.test.filehelper.SearchFileTask;
+import com.zjl.test.largescreen.TestColumnActivity;
 import com.zjl.test.systeminfo.SystemInfoActivity;
 import com.zjl.test.utils.CMDExecute;
 import com.zjl.test.utils.LocationManager;
@@ -71,7 +77,8 @@ public class TestActivity extends Activity implements OnClickListener, LocationM
     private static final int EVENT_MSG_5 = 5;
     private static final int EVENT_KEYGUARD_STATE = 6;
     private static final int POP_DIALOG = 7;
-    private Handler mHandler;
+
+    private View mDecorView;
 
     private Button button1;
     private Button button2;
@@ -118,11 +125,58 @@ public class TestActivity extends Activity implements OnClickListener, LocationM
 
     private static final int REQUEST_READ_FILE = 2;
 
-    private int timer = 0;
+    private int timer;
+
+    private Handler mHandler = new Handler() {
+
+        @Override
+        public void handleMessage(Message msg) {
+            switch(msg.what) {
+                case EVENT_MSG_1:
+                    Log.d(TAG, "msg received");
+                    startMyService(1);
+                    mHandler.sendEmptyMessageDelayed(EVENT_MSG_1, 1000);
+                    break;
+                case EVENT_MSG_2:
+                    Log.d(TAG, "msg received 2");
+                    textView1.setVisibility(View.VISIBLE);
+                    textView1.setText("timer:" + (timer++));
+                    mHandler.sendEmptyMessageDelayed(EVENT_MSG_2, 1000);
+                    break;
+                case EVENT_MSG_3:
+                    finish();
+                    break;
+                case EVENT_MSG_4:
+                    Log.v(TAG, "msg received 4");
+                    log("button1=" + button1);
+                    log("mTestSelected=" + mTestSelected);
+                    break;
+                case EVENT_MSG_5:
+                    Log.v(TAG, "msg received 5");
+                    log("msg:" + msg.obj);
+                    break;
+                case EVENT_KEYGUARD_STATE:
+                    getKeygaurdState();
+                    break;
+                case POP_DIALOG:
+                    popUpDialog();
+                    break;
+            }
+
+        }
+
+    };
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Configuration mCurConfig = new Configuration();
+//        try {
+//            mCurConfig.updateFrom(ActivityManagerNative.getDefault().getConfiguration());
+//        } catch (RemoteException re) {
+//            /* ignore */
+//        }
+        float scale = mCurConfig.fontScale;
         log("onCreate");
 //        requestWindowFeature(Window.FEATURE_NO_TITLE);
         Window window = getWindow();
@@ -131,14 +185,69 @@ public class TestActivity extends Activity implements OnClickListener, LocationM
                 WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS,
                 WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
         setContentView(R.layout.main);
+        StatusBarCompat.setStatusBarColor(this, Color.CYAN);
 //        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         getActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_SHOW_TITLE);
 //        getActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_SHOW_TITLE,
 //                ActionBar.DISPLAY_HOME_AS_UP | ActionBar.DISPLAY_SHOW_TITLE
 //                | ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_USE_LOGO);
 //        setTheme(android.R.style.Theme_Light);
-        StatusBarCompat.setStatusBarColor(this, Color.CYAN);
+        mDecorView = getWindow().getDecorView();
+        mDecorView.setOnSystemUiVisibilityChangeListener
+                (new View.OnSystemUiVisibilityChangeListener() {
+                    @Override
+                    public void onSystemUiVisibilityChange(int visibility) {
+                        // Note that system bars will only be "visible" if none of the
+                        // LOW_PROFILE, HIDE_NAVIGATION, or FULLSCREEN flags are set.
+                        Log.d(TAG, "onSystemUiVisibilityChange:" + visibility);
+//                        if ((visibility & View.SYSTEM_UI_FLAG_FULLSCREEN) == 0) {
+//                            showSystemUI();
+//                        } else {
+//                            hideSystemUI();
+//                        }
+                    }
+                });
 
+        initView();
+        this.getContentResolver().registerContentObserver(Uri.parse("content://sms"), true, mSMSChangeObserver);
+        this.getContentResolver().registerContentObserver(Uri.parse("content://telephony"), true, mSimInfoChangeObserver);
+
+        // time test
+        Time time = new Time();
+        time.setToNow();
+        printTime(time, "t1");
+        time.timezone = "Asia/Tokyo";
+        time.normalize(true);
+        printTime(time, "2222");
+        time.setToNow();
+        printTime(time, "3333");
+    }
+
+    private boolean mShowSystemUI = true;
+    // This snippet hides the system bars.
+    private void hideSystemUI() {
+        // Set the IMMERSIVE flag.
+        // Set the content to appear under the system bars so that the content
+        // doesn't resize when the system bars hide and show.
+        mDecorView.setSystemUiVisibility(
+                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                        | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION // hide nav bar
+                        | View.SYSTEM_UI_FLAG_FULLSCREEN // hide status bar
+                        | View.SYSTEM_UI_FLAG_IMMERSIVE);
+    }
+
+    // This snippet shows the system bars. It does this by removing all the flags
+// except for the ones that make the content appear under the system bars.
+    private void showSystemUI() {
+        mDecorView.setSystemUiVisibility(
+                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
+    }
+
+    private void initView() {
         button1 = (Button) findViewById(R.id.button1);
         button2 = (Button) findViewById(R.id.button2);
         button3 = (Button) findViewById(R.id.button3);
@@ -162,7 +271,7 @@ public class TestActivity extends Activity implements OnClickListener, LocationM
         checkBox1.setChecked(true);
 //        checkBox1.setEnabled(false);
 
-        
+
         mSpinner = (Spinner) findViewById(R.id.spinner1);
         mSpinnerAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, mTestOptions);
         mSpinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -174,67 +283,15 @@ public class TestActivity extends Activity implements OnClickListener, LocationM
             public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
                 mTestSelected = TestOptions.values()[arg2];
                 textView.setText(arg0.getItemAtPosition(arg2).toString());
-                
+
             }
 
             @Override
             public void onNothingSelected(AdapterView<?> arg0) {
-                
+
             }
-            
+
         });
-
-        mHandler = new Handler() {
-
-            @Override
-            public void handleMessage(Message msg) {
-                switch(msg.what) {
-                    case EVENT_MSG_1:
-                        Log.d(TAG, "msg received");
-                        startMyService(1);
-                        mHandler.sendEmptyMessageDelayed(EVENT_MSG_1, 1000);
-                        break;
-                    case EVENT_MSG_2:
-                        Log.d(TAG, "msg received 2");
-                        textView1.setVisibility(View.VISIBLE);
-                        textView1.setText("timer:" + (timer++));
-                        mHandler.sendEmptyMessageDelayed(EVENT_MSG_2, 1000);
-                        break;
-                    case EVENT_MSG_3:
-                        finish();
-                        break;
-                    case EVENT_MSG_4:
-                        Log.v(TAG, "msg received 4");
-                        log("button1=" + button1);
-                        log("mTestSelected=" + mTestSelected);
-                        break;
-                    case EVENT_MSG_5:
-                        Log.v(TAG, "msg received 5");
-                        log("msg:" + msg.obj);
-                        break;
-                    case EVENT_KEYGUARD_STATE:
-                        getKeygaurdState();
-                        break;
-                    case POP_DIALOG:
-                        popUpDialog();
-                        break;
-                }
-
-            }
-
-        };
-        this.getContentResolver().registerContentObserver(Uri.parse("content://sms"), true, mSMSChangeObserver);
-        this.getContentResolver().registerContentObserver(Uri.parse("content://telephony"), true, mSimInfoChangeObserver);
-
-        // time test
-        Time time = new Time();
-        time.setToNow();
-        printTime(time, "t1");
-        time.timezone = "Asia/Tokyo";
-        time.normalize(true);
-        printTime(time, "2222");
-        time.setToNow();
-        printTime(time, "3333");
     }
 
     protected void popUpDialog() {
@@ -377,6 +434,7 @@ public class TestActivity extends Activity implements OnClickListener, LocationM
         menu.add(0, 3, 0, R.string.systeminfo);
         menu.add(0, 4, 0, R.string.filetest);
         menu.add(0, 5, 0, "Clear logs");
+        menu.add(0, 6, 0, "ListTest");
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -402,6 +460,9 @@ public class TestActivity extends Activity implements OnClickListener, LocationM
                 break;
             case 5:
                 clearLogs();
+                break;
+            case 6:
+                startActivity(new Intent(this, ListTestActivity.class));
                 break;
         }
         return false;
@@ -431,7 +492,12 @@ public class TestActivity extends Activity implements OnClickListener, LocationM
                 Toast.makeText(this, "count=" + count++, Toast.LENGTH_SHORT).show();
                 log("editText1.length():" + editText1.getText().length());
                 log("editText2.length():" + editText2.getText().length());
-                broadcastTest();
+                if (mShowSystemUI) {
+                    hideSystemUI();
+                } else {
+                    showSystemUI();
+                }
+                mShowSystemUI = !mShowSystemUI;
 //                onButton2Clicked();
                 break;
             case R.id.button3:
@@ -445,9 +511,20 @@ public class TestActivity extends Activity implements OnClickListener, LocationM
         }
     }
 
+    public void onReaderClicked(View view) {
+        Intent intent = new Intent(this, ReaderActivity.class);
+        intent.putExtra("filePath", "/sdcard/aaa.pdf");
+        startActivity(intent);
+    }
+
+    public void onBigScreenClicked(View view){
+        Intent intent = new Intent(this, TestColumnActivity.class);
+        startActivity(intent);
+    }
+
     private void onButton3Clicked() {
         log("onButton3Clicked");
-        TelephonyManager telMgr = (TelephonyManager)this.getSystemService("phone");
+        TelephonyManager telMgr = (TelephonyManager)this.getSystemService(Context.TELEPHONY_SERVICE);
         log("SPN:" + telMgr.getSimOperator());
         log("SPN:" + telMgr.getSimOperatorName());
         mHandler.sendEmptyMessageDelayed(EVENT_MSG_2, 1000);
@@ -476,7 +553,6 @@ public class TestActivity extends Activity implements OnClickListener, LocationM
     }
 
     public void onButton1Clicked() {
-        log("onButton1Clicked");
         switch(mTestSelected) {
             case NONE:
                 xxxTest();
@@ -500,7 +576,8 @@ public class TestActivity extends Activity implements OnClickListener, LocationM
                 callTest();
                 break;
             case FILE_TEST:
-                simpleFileEncode();
+                traverseFileSystem();
+//                simpleFileEncode();
                 break;
             case FILE_READER:
                 readFile();
@@ -571,28 +648,27 @@ public class TestActivity extends Activity implements OnClickListener, LocationM
         am.set(AlarmManager.RTC, time, pi);
     }
 
+    private static final long ONE_HOUR = 60 * 60 * 1000;
     private void addEvent() {
-//        Intent intent = new Intent(Intent.ACTION_INSERT);
-//        intent.setPackage("com.android.calendar");
-//        intent.setType("vnd.android.cursor.item/event");
+        Intent intent = new Intent(Intent.ACTION_INSERT);
+        intent.setPackage("com.android.calendar");
+        intent.setType("vnd.android.cursor.item/event");
 //        intent.setClassName("com.android.calendar", "EditEventActivity");
-        Intent intent = new Intent("com.smartisan.ADD_CALENDAR_EVENT");
-        intent.putExtra(CalendarContract.EXTRA_EVENT_BEGIN_TIME, System.currentTimeMillis() + 1 * 60 *1000);
-        intent.putExtra(CalendarContract.EXTRA_EVENT_END_TIME, System.currentTimeMillis() + 61 * 60 *1000);
+//        Intent intent = new Intent("com.smartisan.ADD_CALENDAR_EVENT");
+        intent.putExtra(CalendarContract.EXTRA_EVENT_BEGIN_TIME, System.currentTimeMillis() + 61 * 60 *1000);
+        intent.putExtra(CalendarContract.EXTRA_EVENT_END_TIME, System.currentTimeMillis() + 121 * 60 *1000);
         intent.putExtra(CalendarContract.Events.TITLE, "18682943337 incoming call");
+//        intent.putExtra(CalendarContract.Events.ALL_DAY, true);
         intent.putExtra(CalendarContract.Events.DESCRIPTION, "this is the description for this event");
-        intent.putExtra(CalendarContract.Reminders.MINUTES, 0);
-        intent.putExtra("relation_app", "com.android.phone");
-        intent.putExtra("relation_id", "18682943337");
-//        startActivity(intent);
-        sendBroadcast(intent);
+        intent.putExtra(CalendarContract.Events.EVENT_LOCATION, "china beijing");
+        intent.putExtra(CalendarContract.Events.RRULE, "FREQ=WEEKLY;UNTIL=20170409;BYDAY=MO;");
+        intent.putExtra(CalendarContract.Reminders.MINUTES, 5);
+        startActivity(intent);
+//        intent.putExtra("relation_app", "com.android.phone");
+//        intent.putExtra("relation_id", "18682943337");
+//        sendBroadcast(intent);
     }
 
-    private void broadcastTest() {
-        Intent intent = new Intent("com.android.camera.videoRecord");
-        intent.putExtra("isRecording", false);
-        this.sendBroadcast(intent);
-    }
 
     private Process mprocess;
     private static final String LOG_DIR = "/sdcard/log/";
@@ -674,6 +750,71 @@ public class TestActivity extends Activity implements OnClickListener, LocationM
       startActivityForResult(intent, REQUEST_ENCODE_FILE);
     }
 
+    private int mFileCount;
+    private int mFolderCount;
+    private HashMap<String, Integer> mFolderToCountMap;
+    private ArrayList<String> mPathList;
+    public static String sPrimaryStorageRoot = Environment.getExternalStorageDirectory().toString();
+    private void traverseFileSystem() {
+        mFolderToCountMap = new HashMap<String, Integer>();
+        mPathList = new ArrayList<String>();
+        mFileCount = 0;
+        mFolderCount = 0;
+/*        new AsyncTask() {
+            @Override
+            protected Object doInBackground(Object[] objects) {
+                Log.d("zjltest", "traverseFileSystem");
+                File[] files = new File(sPrimaryStorageRoot).listFiles();
+                for (File f : files) {
+                    traverseFolderRecursive(f);
+                }
+                return null;
+            }
+
+            @Override
+            protected void onPostExecute(Object o) {
+                Log.d("zjltest", "mFileCount:" + mFileCount);
+                Log.d("zjltest", "mFolderCount:" + mFolderCount);
+                for(String path : mPathList) {
+                    Log.e("zjltest", path + " : " + mFolderToCountMap.get(path));
+                }
+            }
+        }.execute();*/
+        new SearchFileTask(null).execute();
+    }
+
+    private static final String NOMEDIA = ".nomedia";
+    private int traverseFolderRecursive(File folder) {
+        File[] files = folder.listFiles();
+        int subFilesCount = 0;
+        if (files != null) {
+            subFilesCount += files.length;
+            for (File f : files) {
+                mFileCount++;
+                if (f.isDirectory()) {
+                    mFolderCount++;
+                    if (canSearch(f)) {
+                        subFilesCount += traverseFolderRecursive(f);
+                    }
+                }
+            }
+        }
+        if (subFilesCount >= 100) {
+            String folerName = folder.getAbsolutePath().substring(sPrimaryStorageRoot.length() + 1);
+            if (folerName.split("/").length <= 3) {
+                mFolderToCountMap.put(folerName, subFilesCount);
+                mPathList.add(folerName);
+            }
+        }
+        return subFilesCount;
+    }
+    private boolean canSearch(File folder) {
+        if (folder.isHidden()) {
+            return false;
+        }
+        return true;
+    }
+
     private void xxxTest() {
         
         //---the following is about standby current issue---//
@@ -690,9 +831,7 @@ public class TestActivity extends Activity implements OnClickListener, LocationM
         
         Notification n = null;
         n = new Notification(R.drawable.ic_launcher, label, System.currentTimeMillis());
-        n.setLatestEventInfo(this, label,
-                this.getString(R.string.app_name),
-                pendingNotify);
+//        n.setLatestEventInfo(this, label, this.getString(R.string.app_name), pendingNotify);
         n.flags |= Notification.FLAG_AUTO_CANCEL;
 //        n.flags |= Notification.FLAG_SHOW_LIGHTS;
 //        n.flags |= Notification.FLAG_ONGOING_EVENT;
@@ -738,7 +877,7 @@ public class TestActivity extends Activity implements OnClickListener, LocationM
         @Override
         public void onCancel(DialogInterface dialog) {
             log("canceled");
-            
+
         }
 
         @Override
@@ -746,11 +885,11 @@ public class TestActivity extends Activity implements OnClickListener, LocationM
             if (arg1 == DialogInterface.BUTTON_POSITIVE) {
                 log("BUTTON_POSITIVE");
                 launchCall();
-                
+
             } else if (arg1 == DialogInterface.BUTTON_NEGATIVE) {
                 log("BUTTON_NEGATIVE");
             }
-            
+
         }
     }
 
@@ -884,7 +1023,7 @@ public class TestActivity extends Activity implements OnClickListener, LocationM
     @Override
     public void hideGpsOnScreenIndicator() {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override
@@ -907,5 +1046,5 @@ public class TestActivity extends Activity implements OnClickListener, LocationM
         super.onConfigurationChanged(newConfig);
     }
 
-    
+
 }
