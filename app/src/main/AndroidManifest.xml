@@ -132,6 +132,9 @@
         <activity android:name="com.zjl.test.largescreen.TestColumnActivity"
             android:screenOrientation="landscape">
         </activity>
+
+        <activity android:name=".sensor.SensorTestActivity"></activity>
+
     </application>
 
 </manifest>

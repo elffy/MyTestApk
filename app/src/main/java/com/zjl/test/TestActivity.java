@@ -61,9 +61,11 @@ import com.zjl.test.filehelper.FileBrowserListActivity;
 import com.zjl.test.filehelper.FlipperReaderActivity;
 import com.zjl.test.filehelper.SearchFileTask;
 import com.zjl.test.largescreen.TestColumnActivity;
+import com.zjl.test.sensor.SensorTestActivity;
 import com.zjl.test.systeminfo.SystemInfoActivity;
 import com.zjl.test.utils.CMDExecute;
 import com.zjl.test.utils.LocationManager;
+import com.zjl.test.utils.ToastUtil;
 
 public class TestActivity extends Activity implements OnClickListener, LocationManager.Listener {
     /** Called when the activity is first created. */
@@ -254,6 +256,7 @@ public class TestActivity extends Activity implements OnClickListener, LocationM
         button1.setOnClickListener(this);
         button2.setOnClickListener(this);
         button3.setOnClickListener(this);
+        findViewById(R.id.button4).setOnClickListener(this);
 
         editText1 = (EditText) findViewById(R.id.editText1);
         editText2 = (EditText) findViewById(R.id.editText2);
@@ -292,6 +295,17 @@ public class TestActivity extends Activity implements OnClickListener, LocationM
             }
 
         });
+        Button sensorBtn  = (Button) findViewById(R.id.sensorBtn);
+        sensorBtn.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onSensorBtnClicked(view);
+            }
+        });
+    }
+
+    public void onSensorBtnClicked(View view) {
+        startActivity(new Intent(this, SensorTestActivity.class));
     }
 
     protected void popUpDialog() {
@@ -508,6 +522,8 @@ public class TestActivity extends Activity implements OnClickListener, LocationM
 //                onButton3Clicked();
 
                 break;
+            case R.id.button4:
+                ToastUtil.showToast(this, "This is a Toast");
         }
     }
 

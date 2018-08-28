@@ -66,7 +66,7 @@
                 android:layout_height="wrap_content"
                 android:background="@drawable/button_selector"
                 android:layout_weight="1"
-                android:text="Button" />
+                android:text="Button4" />
 
             <Button
                 android:id="@+id/button"
@@ -99,10 +99,11 @@
                 android:text="@string/button2" />
 
             <Button
+                android:id="@+id/sensorBtn"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@drawable/button_selector"
-                android:text="Button" />
+                android:text="Sensor" />
 
             <Button
                 android:layout_width="wrap_content"
