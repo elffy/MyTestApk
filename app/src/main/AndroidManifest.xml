@@ -120,6 +120,8 @@
         </activity>
 
         <activity android:name="com.zjl.test.SimpleTestActivity"
+            android:screenOrientation="fullSensor"
+            android:configChanges="keyboardHidden|orientation|screenSize"
             android:label="SimpleTestActivity" >
             <intent-filter>
                 <action android:name="android.intent.action.SEND"/>

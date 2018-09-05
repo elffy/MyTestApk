@@ -2,13 +2,13 @@ package com.zjl.test;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -41,6 +41,7 @@ public class SimpleTestActivity extends Activity {
 
     @Override
     protected void onResume() {
+        Log.d("zjltest", "onResume");
         MyTestApp.setScreenShowFlags(this);
         super.onResume();
         StringBuilder sb = new StringBuilder();
@@ -58,6 +59,12 @@ public class SimpleTestActivity extends Activity {
     }
 
     @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        Log.d("zjltest", "onConfigurationChanged");
+        super.onConfigurationChanged(newConfig);
+    }
+
+    @Override
     protected void onPause() {
         // TODO Auto-generated method stub
         super.onPause();
@@ -65,6 +72,7 @@ public class SimpleTestActivity extends Activity {
 
     @Override
     protected void onDestroy() {
+        Log.d("zjltest", "onDestroy");
         MyTestApp.clearScreenShowFlags(this);
         super.onDestroy();
     }
