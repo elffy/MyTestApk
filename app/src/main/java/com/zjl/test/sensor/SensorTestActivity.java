@@ -8,6 +8,8 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.hardware.TriggerEvent;
 import android.hardware.TriggerEventListener;
+import android.location.Address;
+import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.TextView;
@@ -52,6 +54,19 @@ public class SensorTestActivity extends Activity {
         initValues(mXValues);
         initValues(mYValues);
         initValues(mZValues);
+
+        mLocationManager = new LocationManager(this, new LocationManager.Listener() {
+            @Override
+            public void onLocationChanged(Location newLocation) {
+                TextView gpsValue = (TextView) findViewById(R.id.gpsValue);
+                gpsValue.setText("( " + newLocation.toString() + " )");
+            }
+
+            @Override
+            public void onLocationReady(Address result) {
+                Log.d("zjltest", "Location:" + result);
+            }
+        });
     }
 
     private void initValues(float[] values) {
@@ -63,7 +78,7 @@ public class SensorTestActivity extends Activity {
     SensorEventListener mSensorEventListener = new SensorEventListener() {
         @Override
         public void onSensorChanged(SensorEvent sensorEvent) {
-            Log.e("zjltest", "onSensorChanged");
+//            Log.e("zjltest", "onSensorChanged");
 //            setTextViewValue(mTvX, getAverageValue(mXValues, sensorEvent.values[0]));
 //            setTextViewValue(mTvY, getAverageValue(mYValues, sensorEvent.values[1]));
             setTextViewValue(mTvZ, getAverageValue(mZValues, sensorEvent.values[2]));
@@ -111,6 +126,20 @@ public class SensorTestActivity extends Activity {
         super.onPause();
         sensorManager.unregisterListener(mSensorEventListener);
     }
+
+    LocationManager mLocationManager;
+    @Override
+    protected void onStart() {
+        super.onStart();
+        mLocationManager.startReceivingLocationUpdates();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        mLocationManager.stopReceivingLocationUpdates();
+    }
+
 }
 
 
